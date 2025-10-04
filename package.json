@@ -1,0 +1,9 @@
+{
+  "name": "bogel-studio-galeri",
+  "version": "1.0.0",
+  "description": "Backend untuk Galeri Foto Bogel Studio",
+  "main": "index.js",
+  "dependencies": {
+    "@netlify/neon": "^1.0.0"
+  }
+}

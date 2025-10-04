@@ -1,0 +1,3 @@
+[build]
+  # Ini memberitahu Netlify bahwa folder 'netlify/functions' berisi kode backend
+  functions = "netlify/functions" 
