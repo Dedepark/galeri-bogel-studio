@@ -1,34 +1,36 @@
 // netlify/functions/add-photo.js
-const { neon } = require('@netlify/neon');
-const sql = neon(process.env.DATABASE_URL);
+const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
-  // Pastikan hanya request POST yang bisa pakai fungsi ini
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
-    // Ambil data yang dikirim dari form upload website
+    await client.connect();
     const { title, url, uploader, keywords } = JSON.parse(event.body);
     
-    // Cek apakah data yang penting sudah diisi
     if (!title || !url || !uploader) {
       return { statusCode: 400, body: 'Judul, URL, dan Pengunggah wajib diisi!' };
     }
 
-    // Kirim perintah ke database: "Masukkan data foto baru"
-    const newPhoto = await sql`
-      INSERT INTO photos (id, title, url, uploader, keywords)
-      VALUES (${crypto.randomUUID()}, ${title}, ${url}, ${uploader}, ${keywords})
-      RETURNING *;
-    `;
+    const query = 'INSERT INTO photos(id, title, url, uploader, keywords, created_at) VALUES($1, $2, $3, $4, $5, NOW()) RETURNING *';
+    const values = [crypto.randomUUID(), title, url, uploader, keywords];
+    
+    const result = await client.query(query, values);
+    await client.end();
     
     return {
-      statusCode: 201, // 201 artinya "berhasil membuat sesuatu yang baru"
-      body: JSON.stringify(newPhoto[0]),
+      statusCode: 201,
+      body: JSON.stringify(result.rows[0]),
     };
   } catch (error) {
+    console.error('Database error:', error);
     return { statusCode: 500, body: error.toString() };
   }
 };
