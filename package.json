@@ -4,6 +4,6 @@
   "description": "Backend untuk Galeri Foto Bogel Studio",
   "main": "index.js",
   "dependencies": {
-    "@netlify/neon": "^0.8.0"
+    "@netlify/neon": "0.8.0"
   }
 }
